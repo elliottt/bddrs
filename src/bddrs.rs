@@ -66,15 +66,18 @@ impl <'a> Context<'a> {
         self.computed.get(&key).map(|res| *res)
     }
 
+    fn get_unique(&self, v: VarId, t: BDD, f: BDD) -> Option<BDD> {
+        self.unique.get(&(v,t,f)).map(|r| r.abs())
+    }
+
     fn add_unique(&mut self, v: VarId, t: BDD, f: BDD) -> BDD {
-        let key : &'a (VarId,BDD,BDD) = &(v, t, f);
-        match self.unique.get(key) {
-            Some(n) => *n,
+        match self.get_unique(v,t,f) {
+            Some(n) => n,
             None => {
                 let node = Node { var: v, t: t, f: f };
                 let i = self.next;
                 self.next = self.next + 1;
-                self.unique.insert(key, i);
+                self.unique.insert(&(v,t,f), i);
                 self.nodes.push(node);
                 i
             }
@@ -82,8 +85,7 @@ impl <'a> Context<'a> {
     }
 
     fn add_computed(&mut self, r: BDD, f: BDD, g: BDD, h: BDD) {
-        let key = (f, g, h);
-        self.computed.insert(&key, r);
+        self.computed.insert(&(r,f,g), r);
         ()
     }
 
