@@ -109,15 +109,17 @@ impl <'a> Context<'a> {
     }
 
     fn ite_true(&mut self, v: VarId, f: BDD, g: BDD, h: BDD) -> BDD {
-        self.ite(self.fix(v, true, f),
-                 self.fix(v, true, g),
-                 self.fix(v, true, h))
+        let f1 = self.fix(v, true, f);
+        let g1 = self.fix(v, true, g);
+        let h1 = self.fix(v, true, h);
+        self.ite(f1,g1,h1)
     }
 
     fn ite_false(&mut self, v: VarId, f: BDD, g: BDD, h: BDD) -> BDD {
-        self.ite(self.fix(v, false, f),
-                 self.fix(v, false, g),
-                 self.fix(v, false, h))
+        let f1 = self.fix(v, false, f);
+        let g1 = self.fix(v, false, g);
+        let h1 = self.fix(v, false, h);
+        self.ite(f1,g1,h1)
     }
 
     pub fn ite(&mut self, f: BDD, g: BDD, h: BDD) -> BDD {
