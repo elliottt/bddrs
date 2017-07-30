@@ -158,4 +158,20 @@ impl <'a> Context<'a> {
     pub fn var(&self, var: &str) -> BDD {
         *self.vars.get(var).expect("Missing variable")
     }
+
+    pub fn and(&mut self, f: BDD, g: BDD) -> BDD {
+        let h = self.fls();
+        self.ite(f, g, h)
+    }
+
+    pub fn or(&mut self, f: BDD, h: BDD) -> BDD {
+        let g = self.tru();
+        self.ite(f, g, h)
+    }
+
+    pub fn not(&mut self, f: BDD) -> BDD {
+        let g = self.fls();
+        let h = self.tru();
+        self.ite(f, g, h)
+    }
 }
