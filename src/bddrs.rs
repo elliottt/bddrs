@@ -15,8 +15,8 @@ struct Node {
 
 pub struct Context<'a> {
     vars: HashMap<&'a str,VarId>,
-    computed: HashMap<&'a (BDD,BDD,BDD), BDD>,
-    unique: HashMap<&'a (VarId,BDD,BDD), BDD>,
+    computed: HashMap<(BDD,BDD,BDD), BDD>,
+    unique: HashMap<(VarId,BDD,BDD), BDD>,
     nodes: Vec<Node>,
     next: BDD,
 }
@@ -77,7 +77,7 @@ impl <'a> Context<'a> {
                 let node = Node { var: v, t: t, f: f };
                 let i = self.next;
                 self.next = self.next + 1;
-                self.unique.insert(&(v,t,f), i);
+                self.unique.insert((v,t,f), i);
                 self.nodes.push(node);
                 i
             }
@@ -85,7 +85,7 @@ impl <'a> Context<'a> {
     }
 
     fn add_computed(&mut self, r: BDD, f: BDD, g: BDD, h: BDD) {
-        self.computed.insert(&(r,f,g), r);
+        self.computed.insert((r,f,g), r);
         ()
     }
 
