@@ -45,10 +45,6 @@ impl <'a> Context<'a> {
         self.next
     }
 
-    fn var_id(&self, var: &str) -> VarId {
-        *self.vars.get(var).expect("Variable is not present in BDD")
-    }
-
     fn terminal_case(&self, p: BDD, t: BDD, f: BDD) -> Option<BDD> {
         if p == 1 {
             Some(t)
@@ -85,7 +81,7 @@ impl <'a> Context<'a> {
     }
 
     fn add_computed(&mut self, r: BDD, f: BDD, g: BDD, h: BDD) {
-        self.computed.insert((r,f,g), r);
+        self.computed.insert((f,g,h), r);
         ()
     }
 
@@ -151,11 +147,11 @@ impl <'a> Context<'a> {
         }
     }
 
-    pub fn True(&self) -> BDD {
+    pub fn tru(&self) -> BDD {
         1
     }
 
-    pub fn False(&self) -> BDD {
+    pub fn fls(&self) -> BDD {
         0
     }
 

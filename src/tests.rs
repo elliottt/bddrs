@@ -10,8 +10,8 @@ fn empty_size() {
 #[test]
 fn simple() {
     let mut cxt = Context::new(vec!["foo"]);
-    let t = cxt.True();
-    let f = cxt.False();
+    let t = cxt.tru();
+    let f = cxt.fls();
     let res = cxt.ite(t, t, f);
     assert!(res == t)
 }
@@ -19,8 +19,8 @@ fn simple() {
 #[test]
 fn var_test() {
     let mut cxt = Context::new(vec!["foo"]);
-    let t = cxt.True();
-    let f = cxt.False();
+    let t = cxt.tru();
+    let f = cxt.fls();
     let foo = cxt.var("foo");
     let res = cxt.ite(foo,t,f);
     assert!(res == foo)
