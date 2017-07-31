@@ -27,12 +27,20 @@ fn var_test() {
 }
 
 #[test]
+fn var_cache() {
+    let mut ctx = Context::new(vec!["foo"]);
+    let foo = ctx.var("foo");
+    let res = ctx.var("foo");
+    assert!(res == foo)
+}
+
+#[test]
 fn and_test() {
     let mut ctx = Context::new(vec!["foo", "bar"]);
     let foo  = ctx.var("foo");
-    let bar  = ctx.var("bar");
     let nfoo = ctx.not(foo);
     let or   = ctx.or(foo, nfoo);
+    let bar  = ctx.var("bar");
     let res  = ctx.and(or, bar);
     assert!(res == bar)
 }

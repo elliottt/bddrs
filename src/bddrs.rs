@@ -23,6 +23,11 @@ pub struct Context<'a> {
 
 impl <'a> Context<'a> {
 
+    fn get_node(&self, n: BDD) -> &Node {
+        let ix = (n.abs() - 2) as usize;
+        self.nodes.get(ix).expect("Missing node")
+    }
+
     pub fn new(ps: Vec<&'a str>) -> Context<'a> {
 
         // setup the variable ordering map
@@ -85,16 +90,36 @@ impl <'a> Context<'a> {
         ()
     }
 
+    fn get_var(&self, i: BDD) -> Option<VarId> {
+        if i == 0 || i == 1 {
+            None
+        } else {
+            Some(self.get_node(i).var)
+        }
+    }
+
+    fn opt_min(&self, a: Option<isize>, b: Option<isize>) -> Option<isize> {
+        match a {
+            Some(i) => b.map_or(a, |n| Some(cmp::min(i,n))),
+            None    => b
+        }
+    }
+
     // Return the top variable from the set of bdds.
     fn top_var(&self, f: BDD, g: BDD, h: BDD) -> VarId {
-        let nf = self.nodes.get(f.abs() as usize).unwrap();
-        let ng = self.nodes.get(g.abs() as usize).unwrap();
-        let nh = self.nodes.get(h.abs() as usize).unwrap();
-        cmp::min(nf.var, cmp::min(ng.var, nh.var))
+        let nf = self.get_var(f);
+        let ng = self.get_var(g);
+        let nh = self.get_var(h);
+        let x  = self.opt_min(nf, ng);
+        self.opt_min(x,nh).unwrap()
     }
 
     fn fix(&self, v: VarId, val: bool, n: BDD) -> BDD {
-        let node = self.nodes.get(n.abs() as usize).unwrap();
+        if n == 0 || n == 1 {
+            return n
+        }
+
+        let node = self.get_node(n);
         if node.var == v {
             if val {
                 node.t
@@ -155,8 +180,9 @@ impl <'a> Context<'a> {
         0
     }
 
-    pub fn var(&self, var: &str) -> BDD {
-        *self.vars.get(var).expect("Missing variable")
+    pub fn var(&mut self, var: &str) -> BDD {
+        let vid = *self.vars.get(var).expect("Missing variable");
+        self.add_unique(vid, 1, 0)
     }
 
     pub fn and(&mut self, f: BDD, g: BDD) -> BDD {
@@ -170,8 +196,6 @@ impl <'a> Context<'a> {
     }
 
     pub fn not(&mut self, f: BDD) -> BDD {
-        let g = self.fls();
-        let h = self.tru();
-        self.ite(f, g, h)
+        self.ite(f, 0, 1)
     }
 }
