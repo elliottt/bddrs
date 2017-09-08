@@ -1,12 +1,13 @@
 
 use std::cmp;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 pub type BDD = isize;
 
 type VarId = isize;
 
-#[derive(Hash,Eq,PartialEq)]
+#[derive(Hash,Eq,PartialEq,Clone)]
 struct Node {
     var: VarId,
     t: BDD,
@@ -16,8 +17,8 @@ struct Node {
 pub struct Context<'a> {
     vars: HashMap<&'a str,VarId>,
     computed: HashMap<(BDD,BDD,BDD), BDD>,
-    unique: HashMap<(VarId,BDD,BDD), BDD>,
-    nodes: Vec<Node>,
+    unique: HashMap<Rc<Node>, BDD>,
+    nodes: Vec<Rc<Node>>,
     next: BDD,
 }
 
@@ -68,17 +69,19 @@ impl <'a> Context<'a> {
     }
 
     fn get_unique(&self, v: VarId, t: BDD, f: BDD) -> Option<BDD> {
-        self.unique.get(&(v,t,f)).map(|r| r.abs())
+        // does HashMap::get_equiv still exist?
+        let node = Rc::new(Node { var: v, t: t, f: f });
+        self.unique.get(&node).map(|r| r.abs())
     }
 
     fn add_unique(&mut self, v: VarId, t: BDD, f: BDD) -> BDD {
         match self.get_unique(v,t,f) {
             Some(n) => n,
             None => {
-                let node = Node { var: v, t: t, f: f };
+                let node = Rc::new(Node { var: v, t: t, f: f });
                 let i = self.next;
                 self.next = self.next + 1;
-                self.unique.insert((v,t,f), i);
+                self.unique.insert(node.clone(), i);
                 self.nodes.push(node);
                 i
             }

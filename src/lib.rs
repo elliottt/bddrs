@@ -1,3 +1,5 @@
 #[cfg(test)]
 mod tests;
-pub mod bddrs;
+mod bddrs;
+
+pub use bddrs::*;
